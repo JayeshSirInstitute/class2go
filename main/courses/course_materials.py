@@ -1,7 +1,7 @@
 from c2g.models import *
 import datetime
 from django.db.models import Count, Max, Q, F
-from django.db import connection, transaction
+from django.db import connection
 
 
 
@@ -162,19 +162,11 @@ def get_course_materials(common_page_data, get_video_content=False, get_pset_con
                         if common_page_data['course_mode'] == 'draft':
                             prod_page = page.image
                             if not prod_page.live_datetime:
-                                visible_status = "<span style='color:#A00000;'>Not Live</span>"
+                                item['visible_status'] = "<span style='color:#A00000;'>Not Live</span>"
+                            elif prod_page.live_datetime > datetime.datetime.now():
+                                item['visible_status'] = prod_page.live_datetime.strftime("<span style='color:#A07000;'>Live %F at %H:%M</span>" )
                             else:
-                                if prod_page.live_datetime > datetime.datetime.now():
-                                    year = prod_page.live_datetime.year
-                                    month = prod_page.live_datetime.month
-                                    day = prod_page.live_datetime.day
-                                    hour = prod_page.live_datetime.hour
-                                    minute = prod_page.live_datetime.minute
-                                    visible_status = "<span style='color:#A07000;'>Live %02d-%02d-%04d at %02d:%02d</span>" % (month,day,year,hour,minute)
-                                else:
-                                    visible_status = "<span style='color:green;'>Live</span>"
-
-                            item['visible_status'] = visible_status
+                                item['visible_status'] = "<span style='color:green;'>Live</span>"
 
                         section_dict['items'].append(item)
 
@@ -190,19 +182,11 @@ def get_course_materials(common_page_data, get_video_content=False, get_pset_con
                         if common_page_data['course_mode'] == 'draft':
                             prod_file = file.image
                             if not prod_file.live_datetime:
-                                visible_status = "<span style='color:#A00000;'>Not Live</span>"
+                                item['visible_status'] = "<span style='color:#A00000;'>Not Live</span>"
+                            elif prod_file.live_datetime > datetime.datetime.now():
+                                item['visible_status'] = prod_file.live_datetime.strftime("<span style='color:#A07000;'>Live %F at %H:%M</span>" )
                             else:
-                                if prod_file.live_datetime > datetime.datetime.now():
-                                    year = prod_file.live_datetime.year
-                                    month = prod_file.live_datetime.month
-                                    day = prod_file.live_datetime.day
-                                    hour = prod_file.live_datetime.hour
-                                    minute = prod_file.live_datetime.minute
-                                    visible_status = "<span style='color:#A07000;'>Live %02d-%02d-%04d at %02d:%02d</span>" % (month,day,year,hour,minute)
-                                else:
-                                    visible_status = "<span style='color:green;'>Live</span>"
-
-                            item['visible_status'] = visible_status
+                                item['visible_status'] = "<span style='color:green;'>Live</span>"
 
                         section_dict['items'].append(item)
 
@@ -225,19 +209,12 @@ def get_course_materials(common_page_data, get_video_content=False, get_pset_con
                         if common_page_data['course_mode'] == 'draft':
                             prod_video = video.image
                             if not prod_video.live_datetime:
-                                visible_status = "<span style='color:#A00000;'>Not Live</span>"
+                                item['visible_status'] = "<span style='color:#A00000;'>Not Live</span>"
+                            elif prod_video.live_datetime > datetime.datetime.now():
+                                item['visible_status'] = prod_video.live_datetime.strftime("<span style='color:#A07000;'>Live %F at %H:%M</span>" )
                             else:
-                                if prod_video.live_datetime > datetime.datetime.now():
-                                    year = prod_video.live_datetime.year
-                                    month = prod_video.live_datetime.month
-                                    day = prod_video.live_datetime.day
-                                    hour = prod_video.live_datetime.hour
-                                    minute = prod_video.live_datetime.minute
-                                    visible_status = "<span style='color:#A07000;'>Live %02d-%02d-%04d at %02d:%02d</span>" % (month,day,year,hour,minute)
-                                else:
-                                    visible_status = "<span style='color:green;'>Live</span>"
+                                item['visible_status'] = "<span style='color:green;'>Live</span>"
 
-                            item['visible_status'] = visible_status
                         else:
                             download_count = 0
                             for video_download in video_downloads:
@@ -277,20 +254,13 @@ def get_course_materials(common_page_data, get_video_content=False, get_pset_con
                         if common_page_data['course_mode'] == 'draft':
                             prod_problem_set = problem_set.image
                             if not prod_problem_set.live_datetime:
-                                visible_status = "<span style='color:#A00000;'>Not Live</span>"
+                                item['visible_status'] = "<span style='color:#A00000;'>Not Live</span>"
+                            elif prod_problem_set.live_datetime > datetime.datetime.now():
+                                item['visible_status'] = prod_problem_set.live_datetime.strftime("<span style='color:#A07000;'>Live %F at %H:%M</span>" )
                             else:
-                                if prod_problem_set.live_datetime > datetime.datetime.now():
-                                    year = prod_problem_set.live_datetime.year
-                                    month = prod_problem_set.live_datetime.month
-                                    day = prod_problem_set.live_datetime.day
-                                    hour = prod_problem_set.live_datetime.hour
-                                    minute = prod_problem_set.live_datetime.minute
-                                    visible_status = "<span style='color:#A07000;'>Live %02d-%02d-%04d at %02d:%02d</span>" % (month,day,year,hour,minute)
-                                else:
-                                    visible_status = "<span style='color:green;'>Live</span>"
-                            item['visible_status'] = visible_status
+                                item['visible_status'] = "<span style='color:green;'>Live</span>"
+
                         else:
-                                        
                             numCompleted = 0
                             for pset_activity in pset_activities:
                                 if pset_activity['problemset_to_exercise__problemSet_id'] == problem_set.id and not filename_in_deleted_list(pset_activity['problemset_to_exercise__exercise__fileName'], problem_set.id, deleted_exercise_list):
