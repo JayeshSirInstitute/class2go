@@ -585,36 +585,91 @@ def get_group_item_data(group):
     return level, type, id
 
 def get_children(key, level1_items, level2_items):
+    def type_sorter(ci1, ci2):
+        ci1_type = ci1['type']
+        ci2_type = ci2['type']
+        ci1_title = ci1['title']
+        ci2_title = ci2['title']
+        if ci1_type < ci2_type:
+            return -1
+        elif ci1_type > ci2_type:
+            return +1
+        else:
+            # equal types, go by title
+            if ci1_title < ci2_title:
+                return -1
+            elif ci1_title > ci2_title:
+                return +1
+            else:
+                return 0
+
+    def name_sorter(ci1, ci2):
+        ci1_name = ci1['name']
+        ci2_name = ci2['name']
+        ci1_ext = ci1['ext']
+        ci2_ext = ci2['ext']
+        if ci1_name and ci2_name:
+            if ci1_ext < ci2_ext:
+                return -1
+            elif ci1_ext > ci2_ext:
+                return +1
+            else:
+                # equal extensions, go by filename
+                if ci1_name < ci2_name:
+                    return -1
+                elif ci1_name > ci2_name:
+                    return +1
+                else:
+                    return 0
+        else:
+            return 0
+
     children = []
     if level1_items.has_key(key):
         group_id = level1_items[key]
-        child_items = [k for k, v in level2_items.items() if str(group_id) in v]
-        for child in child_items:
-            child_item = {}
-            type, url = get_child_data(child)
-            child_item['type'] = type
-            child_item['url'] = url
+        #child_items = [k for k, v in level2_items.items() if str(group_id) in v]
+        child_data = [get_child_data(x) for x in [k for k, v in level2_items.items() if str(group_id) in v]]
+        for type, url, title, name, ext in child_data:
+            child_item = {
+                          'type' : type,
+                          'url'  : url,
+                          'title': title,
+                          'name' : name,
+                          'ext'  : ext,
+                         }
             children.append(child_item)
+    children = sorted(sorted(children, type_sorter), name_sorter)
     return children
     
 def get_child_data(child):
     parts = str(child).split(":")
     type = parts[0]
     id = parts[1]
+    title = ''
+    name = ''
+    ext = ''
     
     if type == 'video':
         video = Video.objects.get(id=id)
         url = 'videos/' + video.slug
+        title = video.title
+        name = video.file.name
+        ext = name.rsplit('.')[1]
     elif type == 'pset':
         pset = ProblemSet.objects.get(id=id)
         url = 'problemsets/' + pset.slug
+        title = pset.title
     elif type == 'page':
         page = AdditionalPage.objects.get(id=id)
         url = 'pages/' + page.slug
+        title = page.title
     elif type == 'file':
         file = File.objects.get(id=id)
         url = file.file.url
+        title = file.title
+        name = file.file.name
+        ext = name.rsplit('.')[1]
     else:
         url = ''
     
-    return type, url
+    return type, url, title, name, ext

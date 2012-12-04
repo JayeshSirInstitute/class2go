@@ -560,7 +560,8 @@ ul.unstyled.course-list {
 .course-list-item {
   overflow:hidden;
   padding:8px 0 4px;
-  border-bottom: 0;
+  /* border-bottom: 0; */
+  border-bottom: 1px solid #eee;
 }
 .course-list-item .progress {
     height:14px;
